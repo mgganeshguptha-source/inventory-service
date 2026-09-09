@@ -1,0 +1,52 @@
+openapi: 3.0.3
+info:
+  title: inventory-service API
+  version: v1
+  description: >
+    Middle tier. Consumes pricing-service, applies discountTier to compute
+    effective price, and exposes stock + availability to book-service.
+servers:
+  - url: http://localhost:8082
+paths:
+  /inventory/{bookId}:
+    get:
+      summary: Get stock and effective price for a book
+      operationId: getInventory
+      parameters:
+        - name: bookId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Inventory found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Inventory'
+        '404':
+          description: Book not stocked or not priced
+components:
+  schemas:
+    Inventory:
+      type: object
+      required: [bookId, stock, available, effectivePrice, currency]
+      properties:
+        bookId:
+          type: string
+          example: B001
+        stock:
+          type: integer
+          example: 12
+        available:
+          type: boolean
+          example: true
+        effectivePrice:
+          type: number
+          format: double
+          description: Price after applying the discountTier from pricing-service.
+          example: 29.99
+        currency:
+          type: string
+          example: USD
